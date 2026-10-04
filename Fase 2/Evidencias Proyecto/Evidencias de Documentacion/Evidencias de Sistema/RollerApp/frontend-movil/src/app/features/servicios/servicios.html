@@ -1,0 +1,32 @@
+<ion-header><ion-toolbar><ion-buttons slot="start"><ion-back-button defaultHref="/tabs/catalogo" text="Volver" /></ion-buttons><ion-title>Servicios</ion-title></ion-toolbar></ion-header>
+<ion-content class="ion-padding"><main class="mobile-page">
+<header class="servicios-encabezado">
+  <span class="kicker">ROLLERAPP / SERVICIOS</span>
+  <h1>Cuidamos tus cortinas en cada etapa.</h1>
+  <p>Consulta los servicios disponibles y sus precios. Puedes agregarlos al cotizar una cortina desde el catálogo.</p>
+  <a class="btn" routerLink="/tabs/catalogo">Explorar cortinas y cotizar <span aria-hidden="true">↗</span></a>
+</header>
+<section aria-labelledby="servicios-titulo">
+  <h2 id="servicios-titulo">Servicios disponibles</h2>
+  @if (cargando()) {
+    <p class="estado" role="status">Cargando servicios…</p>
+  } @else if (error()) {
+    <div class="estado" role="alert"><p>No se pudieron cargar los servicios. Intenta nuevamente.</p><button type="button" class="btn" (click)="cargar()">Reintentar</button></div>
+  } @else {
+    <div class="servicios-grid">
+      @for (servicio of servicios(); track servicio.id) {
+        <article>
+          <span class="servicio-icono" aria-hidden="true">⚒</span>
+          <h3>{{ servicio.nombre }}</h3>
+          <p>{{ servicio.descripcion }}</p>
+          <strong class="precio">{{ servicio.precio | currency:'CLP':'symbol-narrow':'1.0-2' }}</strong>
+          <a routerLink="/tabs/catalogo" [attr.aria-label]="'Cotizar una cortina con ' + servicio.nombre">Agregar al cotizar <span aria-hidden="true">→</span></a>
+        </article>
+      } @empty {
+        <p class="estado">Por el momento no hay servicios disponibles para nuevas cotizaciones.</p>
+      }
+    </div>
+  }
+</section>
+
+</main></ion-content>

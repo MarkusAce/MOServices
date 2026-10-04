@@ -1,0 +1,106 @@
+<ion-header><ion-toolbar><ion-title>{{ seccion() === 'agenda' ? 'Agenda operativa' : 'Más herramientas' }}</ion-title></ion-toolbar></ion-header>
+<ion-content class="ion-padding">
+  <nav class="operaciones-nav" aria-label="Secciones administrativas">
+    <ion-button size="small" routerLink="/tabs/admin-agenda">Agenda</ion-button>
+    <ion-button size="small" [fill]="seccion() === 'usuarios' ? 'solid' : 'clear'" [attr.aria-current]="seccion() === 'usuarios' ? 'page' : null" routerLink="/tabs/admin-usuarios">Usuarios</ion-button>
+    <ion-button size="small" [fill]="seccion() === 'incidencias' ? 'solid' : 'clear'" [attr.aria-current]="seccion() === 'incidencias' ? 'page' : null" routerLink="/tabs/admin-incidencias">Incidencias</ion-button>
+    <ion-button size="small" [fill]="seccion() === 'cotizaciones' ? 'solid' : 'clear'" [attr.aria-current]="seccion() === 'cotizaciones' ? 'page' : null" (click)="abrir('cotizaciones')">Cotizaciones</ion-button>
+    <ion-button size="small" [fill]="seccion() === 'auditoria' ? 'solid' : 'clear'" [attr.aria-current]="seccion() === 'auditoria' ? 'page' : null" (click)="abrir('auditoria')">Auditoría</ion-button>
+    <ion-button size="small" routerLink="/tabs/perfil">Mi cuenta</ion-button>
+  </nav>
+  @if (error()) { <p role="alert" style="color:var(--ion-color-danger)">{{error()}}</p> }
+  @if (aviso()) { <p role="status" style="color:var(--ion-color-success)">{{aviso()}}</p> }
+  @if (cargando()) { <ion-spinner></ion-spinner> }
+  @if (seccion() === 'agenda') {
+    <h2>Agenda administrativa</h2>
+    <ion-button fill="outline" (click)="cargarTecnicos()">Cargar técnicos para asignar</ion-button>
+    @for (b of agenda(); track b.id) {
+      <article style="border-bottom:1px solid #999;padding:12px 0">
+        @if (b.estado === 'RESERVADO' || b.estado === 'COMPLETADO') { <app-observaciones-visita [visitaId]="b.id" [estado]="b.estado" /> }
+        <strong>Bloque #{{b.id}} · {{b.estado}}</strong>
+        <p>{{b.fecha}} · {{b.horaInicio}}–{{b.horaFin}}</p><p>Técnico: {{b.tecnicoId ?? 'Sin asignar'}}</p>
+        <ion-item><ion-label>Asignar técnico</ion-label><ion-select interface="action-sheet" placeholder="Seleccionar" (ionChange)="tecnicoPorBloque[b.id] = $event.detail.value">
+    @for (u of usuariosVisibles(); track u.id) { @if (u.rol === 'TECNICO' && u.activo) { <ion-select-option [value]="u.id">{{u.nombre}} {{u.apellido}}</ion-select-option> } }
+        </ion-select></ion-item>
+        <ion-button size="small" [disabled]="guardando() || !tecnicoPorBloque[b.id]" (click)="asignar(b)">Guardar asignación</ion-button>
+      </article>
+    } @empty { @if (!cargando() && !error()) { <p>No hay bloques registrados.</p> } }
+  }
+  @if (seccion() === 'usuarios') {
+    <h2>Usuarios</h2><p>Los cambios requieren confirmación y son validados por el servidor.</p>
+    <ion-searchbar aria-label="Buscar usuarios" placeholder="Nombre, correo o identificador"
+      [value]="buscarUsuario()" [debounce]="200" (ionInput)="buscarUsuario.set($event.detail.value ?? '')"></ion-searchbar>
+    <ion-item><ion-select label="Filtrar por rol" label-placement="stacked" interface="action-sheet"
+      [value]="filtroRol()" (ionChange)="filtroRol.set($event.detail.value)">
+      <ion-select-option value="TODOS">Todos los roles</ion-select-option>
+      <ion-select-option value="ADMIN">Administradores</ion-select-option>
+      <ion-select-option value="TECNICO">Técnicos</ion-select-option>
+      <ion-select-option value="CLIENTE">Clientes</ion-select-option>
+      <ion-select-option value="VENDEDOR">Vendedores</ion-select-option>
+    </ion-select></ion-item>
+    <p role="status">{{ usuariosVisibles().length }} usuarios visibles</p>
+    @for (u of usuariosVisibles(); track u.id) {
+      <article style="border-bottom:1px solid #999;padding:12px 0"><strong>{{u.nombre}} {{u.apellido}}</strong>
+        <p>{{u.correo}} · {{u.rol}} · {{u.activo ? 'Activo' : 'Inactivo'}}</p>
+        <ion-button size="small" fill="outline" [disabled]="guardando() || u.id === auth.usuarioActual()?.id" (click)="cambiarEstado(u)">{{u.activo ? 'Desactivar' : 'Activar'}}</ion-button>
+      </article>
+    } @empty { @if (!cargando() && !error()) { <p>No hay usuarios disponibles.</p> } }
+  }
+  @if (seccion() === 'incidencias') {
+    <h2>Incidencias de pago</h2><p>Consulta de incidencias; la resolución financiera avanzada permanece en Web.</p>
+    <ion-item><ion-select label="Estado de incidencia" label-placement="stacked" interface="action-sheet"
+      [value]="filtroIncidencia()" (ionChange)="filtroIncidencia.set($event.detail.value)">
+      <ion-select-option value="TODOS">Todos los estados</ion-select-option>
+      @for (estado of estadosIncidencias(); track estado) { <ion-select-option [value]="estado">{{estado}}</ion-select-option> }
+    </ion-select></ion-item>
+    <p role="status">{{ incidenciasVisibles().length }} incidencias visibles</p>
+    @for (i of incidenciasVisibles(); track i.pagoId) {
+      <article style="border-bottom:1px solid #999;padding:12px 0"><strong>Pago #{{i.pagoId}} · {{i.estado}}</strong>
+        <p>Pedido: {{i.pedidoId ?? 'Sin pedido'}} · Cotización: {{i.cotizacionId}}</p>
+        <p>{{i.monto | currency:'CLP':'symbol-narrow':'1.0-0'}} · {{i.creadoEn | date:'dd/MM/yyyy HH:mm'}}</p><p>{{i.motivo}}</p>
+      </article>
+    } @empty { @if (!cargando() && !error()) { <p>No hay incidencias registradas.</p> } }
+  }
+  @if (seccion() === 'cotizaciones') {
+    <h2>Cotizaciones de la empresa</h2>
+    <p>Consulta administrativa de solo lectura. La edición avanzada se realiza desde la web.</p>
+    <p role="status">{{ totalCotizaciones() }} cotizaciones registradas</p>
+    @for (c of cotizaciones(); track c.id) {
+      <article style="border:1px solid var(--ion-color-medium-tint);border-radius:12px;padding:14px;margin:12px 0">
+        <strong>Cotización #{{c.id}} · {{c.estado}}</strong>
+        <p>{{c.productoNombre}} · {{c.telaNombre}}</p>
+        <p>{{c.anchoCm}} × {{c.altoCm}} cm · {{c.comuna}}</p>
+        <p><strong>{{c.total | currency:'CLP':'symbol-narrow':'1.0-0'}}</strong></p>
+        <p>Creada: {{c.creadoEn | date:'dd/MM/yyyy HH:mm'}}</p>
+        @if (c.expiraEn) { <p>Vencimiento: {{c.expiraEn | date:'dd/MM/yyyy'}}</p> }
+      </article>
+    } @empty { @if (!cargando() && !error()) { <p>No hay cotizaciones registradas.</p> } }
+    @if (paginasCotizaciones() > 1) {
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+        <ion-button fill="outline" [disabled]="cargando() || paginaCotizaciones() === 0" (click)="cargarCotizaciones(paginaCotizaciones()-1)">Anterior</ion-button>
+        <span>Página {{paginaCotizaciones()+1}} de {{paginasCotizaciones()}}</span>
+        <ion-button fill="outline" [disabled]="cargando() || paginaCotizaciones()+1 >= paginasCotizaciones()" (click)="cargarCotizaciones(paginaCotizaciones()+1)">Siguiente</ion-button>
+      </div>
+    }
+  }
+  @if (seccion() === 'auditoria') {
+    <h2>Actividad administrativa</h2>
+    <p>Historial de cambios administrativos registrados por el servidor. Solo lectura.</p>
+    <p role="status">{{ totalAuditoria() }} operaciones registradas</p>
+    @for (evento of auditoria(); track evento.id) {
+      <article style="border:1px solid var(--ion-color-medium-tint);border-radius:12px;padding:14px;margin:12px 0">
+        <strong>{{ evento.accion.replaceAll('_', ' ') }}</strong>
+        <p>{{ evento.recurso }} #{{ evento.recursoId }} · Administrador #{{ evento.actorId }}</p>
+        @if (evento.detalle) { <p>{{ evento.detalle }}</p> }
+        <p>{{ evento.creadoEn | date:'dd/MM/yyyy HH:mm:ss' }}</p>
+      </article>
+    } @empty { @if (!cargando() && !error()) { <p>No hay operaciones registradas todavía.</p> } }
+    @if (paginasAuditoria() > 1) {
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+        <ion-button fill="outline" [disabled]="cargando() || paginaAuditoria() === 0" (click)="cargarAuditoria(paginaAuditoria()-1)">Anterior</ion-button>
+        <span>Página {{paginaAuditoria()+1}} de {{paginasAuditoria()}}</span>
+        <ion-button fill="outline" [disabled]="cargando() || paginaAuditoria()+1 >= paginasAuditoria()" (click)="cargarAuditoria(paginaAuditoria()+1)">Siguiente</ion-button>
+      </div>
+    }
+  }
+</ion-content>

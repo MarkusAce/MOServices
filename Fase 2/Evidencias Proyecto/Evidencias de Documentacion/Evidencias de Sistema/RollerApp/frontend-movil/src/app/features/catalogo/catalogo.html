@@ -1,0 +1,47 @@
+<ion-header><ion-toolbar color="primary"><ion-title><span class="app-brand"><img src="rollerapp-r.svg" alt="" width="30" height="30">RollerApp</span></ion-title></ion-toolbar></ion-header>
+<ion-content>
+  <section class="mobile-hero"><span>COLECCIÓN ROLLERAPP</span><h1>Cortinas a medida para tu espacio.</h1><p>Revisa los modelos y elige el que mejor se adapte a lo que necesitas.</p></section>
+  <div class="catalogo-mobile-contenido">
+    <div class="catalogo-mobile-titulo"><div><span>CATÁLOGO</span><h2>Modelos disponibles</h2></div><small>{{ productosFiltrados().length }} de {{ productos().length }} modelos</small></div>
+    <div class="catalogo-mobile-filtros" role="search"><label for="buscar-catalogo-mobile">Buscar producto</label><input id="buscar-catalogo-mobile" type="search" placeholder="Nombre o descripción" [value]="busqueda()" (input)="actualizarBusqueda($event)">
+      <div class="catalogo-mobile-categorias" aria-label="Filtrar por categoría"><button type="button" [class.seleccionada]="categoria() === 'TODAS'" [attr.aria-pressed]="categoria() === 'TODAS'" (click)="seleccionarCategoria('TODAS')">Todas</button>
+      @for (opcion of categorias(); track opcion) { <button type="button" [class.seleccionada]="categoria() === opcion" [attr.aria-pressed]="categoria() === opcion" (click)="seleccionarCategoria(opcion)">{{ opcion }}</button> }
+      </div>
+      <div class="catalogo-mobile-opciones">
+        <label for="filtro-paso-luz-mobile">Paso de luz
+        <select id="filtro-paso-luz-mobile" [value]="pasoLuz()" (change)="seleccionarPasoLuz($event)">
+          <option value="TODOS">Todos los niveles</option>
+          @for (nivel of nivelesPasoLuz; track nivel.valor) { <option [value]="nivel.valor">{{ nivel.texto }}</option> }
+        </select>
+      </label>
+      <label for="filtro-tela-mobile">Tela predeterminada
+          <select id="filtro-tela-mobile" [value]="telaId()" (change)="seleccionarTela($event)">
+            <option value="0">Todas las telas</option>
+            @for (tela of telas(); track tela.id) { <option [value]="tela.id">{{ tela.nombre }}</option> }
+          </select>
+        </label>
+        <label for="filtro-mecanismo-mobile">Mecanismo predeterminado
+          <select id="filtro-mecanismo-mobile" [value]="mecanismoId()" (change)="seleccionarMecanismo($event)">
+            <option value="0">Todos los mecanismos</option>
+            @for (mecanismo of mecanismos(); track mecanismo.id) { <option [value]="mecanismo.id">{{ mecanismo.nombre }}</option> }
+          </select>
+        </label>
+        <button type="button" (click)="limpiarFiltros()">Limpiar filtros</button>
+      </div></div>
+    @if (cargando()) { <div class="catalogo-mobile-estado"><ion-spinner name="crescent"></ion-spinner><p>Cargando catálogo...</p></div> }
+    @else if (errorCarga()) { <p class="catalogo-mobile-estado" role="alert">No se pudo cargar el catálogo. Intenta nuevamente.</p> }
+    @else if (productos().length === 0) { <p class="catalogo-mobile-estado">No hay productos disponibles por el momento.</p> }
+    @else if (productosFiltrados().length === 0) { <p class="catalogo-mobile-estado">No hay productos que coincidan con tu búsqueda.</p> }
+    @else {
+      <div class="catalogo-mobile-grid">
+        @for (producto of productosFiltrados(); track producto.id) {
+          <ion-card [routerLink]="['/productos', producto.id]" button="true" class="catalogo-mobile-card">
+            @if (producto.imagenPrincipal) { <ion-img [src]="imagenProducto(producto.imagenPrincipal)" [alt]="producto.nombre"></ion-img> }
+            <ion-card-header><ion-badge color="tertiary">{{ producto.categoria }}</ion-badge><ion-card-title>{{ producto.nombre }}</ion-card-title></ion-card-header>
+            <ion-card-content>{{ producto.descripcion }}<span class="catalogo-mobile-link">Ver producto →</span></ion-card-content>
+          </ion-card>
+        }
+      </div>
+    }
+  </div>
+</ion-content>

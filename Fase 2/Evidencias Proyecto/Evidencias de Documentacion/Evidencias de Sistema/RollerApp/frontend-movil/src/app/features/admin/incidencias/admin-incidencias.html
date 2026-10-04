@@ -1,0 +1,40 @@
+<ion-header><ion-toolbar><ion-buttons slot="start"><ion-back-button defaultHref="/tabs/herramientas" text="Volver" /></ion-buttons><ion-title>Incidencias de pago</ion-title></ion-toolbar></ion-header>
+<ion-content class="ion-padding"><main class="mobile-page">
+<h1>Incidencias de pago</h1>
+<p>Pagos autorizados sin pedido o sin visita, y pagos iniciados hace más de 30 minutos. No se realizan nuevos cobros desde este panel.</p>
+<button type="button" (click)="cargar()" [disabled]="cargando() || procesando()">Actualizar incidencias</button>
+@if (cargando()) { <p>Cargando...</p> }
+@else if (errorCarga()) { <p role="alert">{{errorCarga()}}</p><button (click)="cargar()">Reintentar</button> }
+@else if (incidencias().length === 0) { <p>No se detectaron incidencias entre los registros consultados.</p> }
+@else {
+  <div class="tabla-contenedor"><table>
+    <thead><tr><th>Pago / pedido</th><th>Orden</th><th>Monto</th><th>Estado</th><th>Incidencia</th><th>Resolución</th></tr></thead>
+    <tbody>
+      @for (item of incidencias(); track item.pagoId) {
+        <tr>
+          <td data-label="Pago / pedido">#{{ item.pagoId }} / {{ item.pedidoId ?? 'Sin pedido' }}</td>
+          <td data-label="Orden">{{ item.ordenCompra }}</td>
+          <td data-label="Monto">{{ item.monto }} CLP</td>
+          <td data-label="Estado">{{ item.estado }}</td>
+          <td data-label="Incidencia">{{ item.motivo }}</td>
+          <td data-label="Resolución">
+            @if (item.motivo === 'PEDIDO_SIN_VISITA' && item.pedidoId !== null) {
+              <select [attr.aria-label]="'Horario para pedido ' + item.pedidoId" [(ngModel)]="seleccion[item.pedidoId]" [disabled]="procesando()">
+                <option [ngValue]="null">Seleccionar horario</option>
+                @for (bloque of disponibles(); track bloque.id) {
+                  <option [ngValue]="bloque.id">{{ bloque.fecha }} · {{ bloque.horaInicio }}–{{ bloque.horaFin }}</option>
+                }
+              </select>
+              <button type="button" (click)="reagendar(item.pedidoId)" [disabled]="!seleccion[item.pedidoId] || procesando()">Asignar visita</button>
+            } @else if (item.motivo === 'PAGO_PENDIENTE_CONCILIACION') {
+              <button type="button" (click)="revisar(item.pagoId)" [disabled]="procesando()">Consultar Webpay</button>
+            } @else { Revisión manual; no ejecutar otro cobro. }
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table></div>
+}
+<p class="nota">La lista de pagos autorizados está limitada a los 100 más recientes; los pagos pendientes, a los 100 más antiguos. No constituye una auditoría histórica completa.</p>
+
+</main></ion-content>
