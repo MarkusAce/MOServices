@@ -1,0 +1,1 @@
+export function etiquetaEstado(estado:string):string{return ({PENDIENTE_PAGO:'Pendiente de pago',PAGADO:'Pagado',EN_CONFECCION:'En producción',EN_TERRENO:'En camino',REALIZADO:'Finalizado',REPROGRAMADO:'Reprogramado',CANCELADO:'Cancelado'} as Record<string,string>)[estado]??estado;}
