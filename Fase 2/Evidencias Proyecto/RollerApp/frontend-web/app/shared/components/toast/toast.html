@@ -1,0 +1,8 @@
+<div class="toast-contenedor">
+  @for (toast of toastService.toasts(); track toast.id) {
+    <div class="toast" [class.exito]="toast.tipo === 'exito'" [class.error]="toast.tipo === 'error'">
+      {{ toast.mensaje }}
+      <button type="button" (click)="toastService.cerrar(toast.id)" aria-label="Cerrar">✕</button>
+    </div>
+  }
+</div>
