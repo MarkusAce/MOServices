@@ -1,0 +1,38 @@
+<section class="visitas">
+  <span class="kicker">INSTALADOR · AGENDA PERSONAL</span><h1>Mis visitas</h1>
+  <p>Visitas técnicas asignadas a tu cuenta.</p>
+  <div class="filtro-fecha">
+    <label for="fecha-visitas">Fecha de las visitas (Chile)</label>
+    <input id="fecha-visitas" type="date" [ngModel]="fecha" (ngModelChange)="cambiarFecha($event)" required>
+    <button type="button" (click)="hoy()">Hoy</button>
+    <button type="button" (click)="cargar()" [disabled]="cargando()">Actualizar</button>
+  </div>
+  <p class="agenda-resumen">Agenda del {{ fecha | date:'dd/MM/yyyy' }}.</p>
+
+  @if (cargando()) {
+    <p>Cargando visitas...</p>
+  } @else if (error()) {
+    <p role="alert">No pudimos cargar tus visitas para esta fecha.</p>
+    <button type="button" (click)="cargar()">Reintentar</button>
+  } @else if (visitas().length === 0) {
+    <p>No tienes visitas asignadas para esta fecha.</p>
+  } @else {
+    <div class="lista">
+      @for (visita of visitas(); track visita.id) {
+        <article class="visita">
+          <h2>Visita #{{ visita.visitaId }} · Pedido #{{ visita.id }}</h2>
+          <p><strong>{{ visita.productoNombre }}</strong> · {{ etiquetaEstado(visita.estado) }}</p>
+          <p>{{ visita.visitaFecha | date:'dd/MM/yyyy' }} · {{ visita.visitaHoraInicio }}–{{ visita.visitaHoraFin }}</p>
+          <p>{{ visita.direccion }}, {{ visita.comuna }}</p>
+          <span class="estado-visita">{{ visita.visitaEstado }}</span>
+          @if (visita.atencionInicio) {<p>Atención iniciada: {{visita.atencionInicio | date:'HH:mm:ss'}} @if (visita.atencionFin) { · Finalizada: {{visita.atencionFin | date:'HH:mm:ss'}} }</p>}
+          @if (visita.visitaId) { <app-observaciones-visita [visitaId]="visita.visitaId" [estado]="visita.visitaEstado" /> }
+          @if (visita.visitaEstado === 'RESERVADO' && !visita.atencionInicio) { <button [disabled]="procesando() !== null" (click)="iniciarAtencion(visita)">Iniciar atención</button> }
+          @if (visita.visitaEstado === 'RESERVADO' && visita.atencionInicio) {
+            <button type="button" [disabled]="procesando() !== null" (click)="completar(visita)">Marcar visita completada</button>
+          }
+        </article>
+      }
+    </div>
+  }
+</section>

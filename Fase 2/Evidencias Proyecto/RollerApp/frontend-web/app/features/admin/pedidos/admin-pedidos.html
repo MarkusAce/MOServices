@@ -1,0 +1,48 @@
+<header class="page-intro"><span class="kicker">{{esAdmin()?"ADMINISTRACIÓN":"VENDEDOR"}} · PEDIDOS</span><h1>{{esAdmin()?"Gestión de pedidos":"Panel de ventas"}}</h1><p>Consulta las compras, el estado de cada pedido y la ficha del cliente.</p></header>
+@if(cancelando();as p){<section><p>¿Cancelar el pedido #{{p.id}}? Se cancelará su visita pendiente. El pago permanece registrado; cualquier reembolso requiere gestión aparte.</p><button (click)="cancelarPedido()" [disabled]="actualizandoId()!==null">Confirmar cancelación</button><button (click)="cancelando.set(null)" [disabled]="actualizandoId()!==null">Volver</button></section>}
+
+@if (cargando()) {
+  <p>Cargando pedidos...</p>
+} @else {
+  @if (errorCarga()) { <p role="alert">No se pudieron cargar los pedidos. Vuelve a entrar a esta sección.</p> }
+  @else if (pedidos().length === 0) { <p>No hay pedidos registrados.</p> }
+  <div class="pedidos-lista">
+    @for (pedido of pedidos(); track pedido.id) {
+      <article class="pedido-fila">
+        <div>
+          @if (pedido.visitaId && esAdmin()) { <app-observaciones-visita [visitaId]="pedido.visitaId" [estado]="pedido.visitaEstado" /> }
+          <a [routerLink]="['/clientes',pedido.clienteId]">Ver ficha del cliente</a>
+          @if(esAdmin() && pedido.estado!=='REALIZADO' && pedido.estado!=='CANCELADO'){<app-visita-pedido [pedido]="pedido" (actualizado)="cargar()" />}
+          <strong>Pedido #{{ pedido.id }}</strong> — {{ pedido.productoNombre }}
+          <p class="detalle">{{ pedido.direccion }}, {{ pedido.comuna }} · {{ pedido.creadoEn | date:'dd/MM/yyyy' }}</p>
+          <p class="detalle">Vendedor: {{ pedido.vendedorNombre || 'Sin vendedor (compra online)' }} · Técnico: {{ pedido.tecnicoNombre || 'Sin técnico' }}</p>
+          @if (pedido.estado !== 'REALIZADO' && pedido.estado !== 'CANCELADO') {
+            @if (esAdmin()) {
+              <label class="detalle" [for]="'vendedor-' + pedido.id">Confirmar vendedor de venta asistida:</label>
+              <select [id]="'vendedor-' + pedido.id" #seleccion (change)="asignarVendedor(pedido, seleccion.value)">
+                <option value="">{{ pedido.vendedorNombre || 'Seleccionar vendedor' }}</option>
+                @for (v of vendedores(); track v.id) {
+                  <option [value]="v.id" [disabled]="v.id === pedido.vendedorId">{{ v.nombre }} {{ v.apellido }}</option>
+                }
+              </select>
+            }
+          }
+        </div>
+        <div class="pedido-acciones">
+          @if (pedido.estado === 'EN_TERRENO' && pedido.requiereVisita && pedido.visitaEstado !== 'COMPLETADO') {
+            <p>Completa la visita desde Agenda antes de finalizar el pedido.</p>
+          }
+          @if(esAdmin() && pedido.estado!=='REALIZADO' && pedido.estado!=='CANCELADO'){<button class="btn rojo" (click)="cancelando.set(pedido)" [disabled]="actualizandoId()!==null">Cancelar pedido</button>}
+          <span class="estado">{{ etiquetaEstado(pedido.estado) }}</span>
+          @if (esAdmin() && siguienteEstadoDisponible(pedido); as siguiente) {
+            <button type="button" class="btn" [disabled]="actualizandoId() !== null || !esAdmin()" (click)="avanzarEstado(pedido)">
+              Avanzar a {{ etiquetaEstado(siguiente) }}
+            </button>
+          }
+        </div>
+      </article>
+    }
+  </div>
+}
+
+@if(esAdmin()){<app-cotizaciones-admin />}

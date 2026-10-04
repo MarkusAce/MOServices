@@ -1,0 +1,76 @@
+<section class="catalogo-encabezado">
+  <div class="catalogo-encabezado-contenido">
+    <span class="catalogo-eyebrow">ROLLERAPP · COLECCIÓN</span>
+    <h1>Cortinas a medida para cada espacio.</h1>
+    <p>Revisa los modelos disponibles y elige el tipo de cortina que mejor se adapta a tu espacio.</p>
+    <a href="#coleccion" class="catalogo-hero-enlace">Ver modelos <span aria-hidden="true">↗</span></a>
+  </div>
+</section>
+<section id="coleccion" class="catalogo-seccion" aria-label="Colección de cortinas roller">
+  <div class="catalogo-seccion-titulo"><div><span class="catalogo-eyebrow">NUESTROS PRODUCTOS</span><h2>Modelos disponibles</h2></div><span class="catalogo-conteo">{{ productosFiltrados().length }} de {{ productos().length }} modelos</span></div>
+  <div class="catalogo-filtros" role="search">
+    <label class="catalogo-busqueda" for="buscar-productos"><span>Buscar producto</span><input id="buscar-productos" type="search" placeholder="Nombre o descripción" [value]="busqueda()" (input)="actualizarBusqueda($event)"></label>
+    <div class="catalogo-categorias" aria-label="Filtrar por categoría"><button type="button" [class.seleccionada]="categoria() === 'TODAS'" [attr.aria-pressed]="categoria() === 'TODAS'" (click)="seleccionarCategoria('TODAS')">Todas</button>
+      @for (opcion of categorias(); track opcion) { <button type="button" [class.seleccionada]="categoria() === opcion" [attr.aria-pressed]="categoria() === opcion" (click)="seleccionarCategoria(opcion)">{{ opcion }}</button> }
+    </div>
+    @if (variedadesDisponibles().length > 0) {
+      <div class="catalogo-variedades" aria-label="Variedades de cortinas roller">
+        <span class="catalogo-variedades-titulo">Explorar variedades roller</span>
+        <div class="catalogo-variedades-opciones">
+          <button type="button" [class.seleccionada]="variedad() === 'TODAS'" [attr.aria-pressed]="variedad() === 'TODAS'" (click)="seleccionarVariedad('TODAS')">Todas las variedades</button>
+          @for (opcion of variedadesDisponibles(); track opcion) {
+            <button type="button" [class.seleccionada]="variedad() === opcion" [attr.aria-pressed]="variedad() === opcion" (click)="seleccionarVariedad(opcion)">{{ opcion }}</button>
+          }
+        </div>
+      </div>
+    }
+    <div class="catalogo-filtros-opciones">
+      <label for="filtro-paso-luz-web">Paso de luz
+        <select id="filtro-paso-luz-web" [value]="pasoLuz()" (change)="seleccionarPasoLuz($event)">
+          <option value="TODOS">Todos los niveles</option>
+          @for (nivel of nivelesPasoLuz; track nivel.valor) { <option [value]="nivel.valor">{{ nivel.texto }}</option> }
+        </select>
+      </label>
+      <label for="filtro-tela-web">Tela predeterminada
+        <select id="filtro-tela-web" [value]="telaId()" (change)="seleccionarTela($event)">
+          <option value="0">Todas las telas</option>
+          @for (tela of telas(); track tela.id) { <option [value]="tela.id">{{ tela.nombre }}</option> }
+        </select>
+      </label>
+      <label for="filtro-mecanismo-web">Mecanismo predeterminado
+        <select id="filtro-mecanismo-web" [value]="mecanismoId()" (change)="seleccionarMecanismo($event)">
+          <option value="0">Todos los mecanismos</option>
+          @for (mecanismo of mecanismos(); track mecanismo.id) { <option [value]="mecanismo.id">{{ mecanismo.nombre }}</option> }
+        </select>
+      </label>
+      <button type="button" (click)="limpiarFiltros()">Limpiar filtros</button>
+    </div>
+  </div>
+  @if (cargando()) {
+    <p class="catalogo-estado">Cargando catálogo...</p>
+  } @else if (errorCarga()) {
+    <p class="catalogo-estado" role="alert">No se pudo cargar el catálogo. Intenta actualizar la página.</p>
+  } @else if (productos().length === 0) {
+    <p class="catalogo-estado">No hay productos disponibles por el momento.</p>
+  } @else if (productosFiltrados().length === 0) {
+    <p class="catalogo-estado">No hay productos que coincidan con tu búsqueda. Prueba otra categoría o nombre.</p>
+  } @else {
+    <div class="catalogo-grid">
+      @for (producto of productosFiltrados(); track producto.id) {
+        <a class="producto-card" [routerLink]="['/productos', producto.id]">
+          <div class="producto-card-imagen">
+            @if (producto.imagenPrincipal) { <img [src]="imagenProducto(producto.imagenPrincipal)" [alt]="producto.nombre" loading="lazy" (error)="imagenFallback($event)"> }
+            @else { <span class="producto-sin-imagen">RollerApp</span> }
+            <span class="producto-card-ver">Ver detalles <span aria-hidden="true">↗</span></span>
+          </div>
+          <div class="producto-card-info">
+            <span class="producto-card-categoria">{{ producto.categoria }}</span>
+            <h3>{{ producto.nombre }}</h3>
+            <p>{{ producto.descripcion }}</p>
+            <span class="producto-card-accion">Ver producto <span aria-hidden="true">→</span></span>
+          </div>
+        </a>
+      }
+    </div>
+  }
+</section>
