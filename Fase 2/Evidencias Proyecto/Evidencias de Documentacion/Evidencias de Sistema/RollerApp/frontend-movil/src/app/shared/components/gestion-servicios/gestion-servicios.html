@@ -1,0 +1,28 @@
+<section>
+ <h1>Administrar servicios</h1>
+ <p>Actualiza las tarifas y la disponibilidad. Las cotizaciones y pedidos anteriores conservan sus importes.</p>
+ @if (error()) { <p role="alert" class="error">{{ error() }}</p> }
+ @if (mensaje()) { <p role="status">{{ mensaje() }}</p> }
+ <form #form="ngForm" (ngSubmit)="guardar()">
+ <h2>{{ id === null ? 'Nuevo servicio' : 'Editar servicio' }}</h2>
+ <fieldset [disabled]="guardando()">
+ <label>Nombre<input name="nombre" [(ngModel)]="datos.nombre" required maxlength="100" pattern=".*\S.*"></label>
+ <label>Descripción<textarea name="descripcion" [(ngModel)]="datos.descripcion" maxlength="255"></textarea></label>
+ <label>Precio (CLP)<input name="precio" type="number" [(ngModel)]="datos.precio" required min="0" max="99999999.99" step="0.01"></label>
+ <label>Comisión del técnico (CLP)<input name="comision" type="number" [(ngModel)]="datos.comisionTecnico" required min="0" max="99999999.99" step="0.01"></label>
+ <label><input name="activo" type="checkbox" [(ngModel)]="datos.activo"> Disponible para nuevas cotizaciones</label>
+ <button type="submit" [disabled]="form.invalid || guardando()">{{ guardando() ? 'Guardando…' : 'Guardar' }}</button>
+ @if (id !== null) { <button type="button" (click)="cancelar()">Cancelar edición</button> }
+ </fieldset></form>
+ <div class="filtros"><label>Buscar<input [(ngModel)]="busqueda" placeholder="Nombre del servicio"></label>
+ <label>Disponibilidad<select [(ngModel)]="estado"><option value="todos">Todos</option><option value="activos">Activos</option><option value="inactivos">Inactivos</option></select></label></div>
+ @if (cargando()) { <p role="status">Cargando servicios…</p> }
+ @if (error() && servicios().length === 0) { <button type="button" (click)="cargar()" [disabled]="cargando()">Reintentar carga</button> }
+ <div class="lista">@for (s of visibles(); track s.id) {
+ <article><h2>{{ s.nombre }}</h2><p>{{ s.descripcion }}</p><p>{{ s.activo ? 'Activo' : 'Inactivo' }}</p>
+ <p>Precio: {{ s.precio | currency:'CLP':'symbol-narrow':'1.0-2' }}</p><p>Comisión: {{ s.comisionTecnico | currency:'CLP':'symbol-narrow':'1.0-2' }}</p>
+ <button type="button" (click)="editar(s)" [disabled]="guardando()">Editar {{ s.nombre }}</button>
+ <button type="button" (click)="cambiar(s)" [disabled]="guardando() || id !== null">{{ s.activo ? 'Desactivar' : 'Activar' }} {{ s.nombre }}</button>
+ </article>
+ } @empty { @if (!cargando() && !error()) { <p>No hay servicios para este filtro.</p> } }</div>
+ </section>
