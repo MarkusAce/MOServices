@@ -1,0 +1,13 @@
+<div class="page-intro"><span class="kicker">ADMINISTRACIÓN · EQUIPO</span><h1>Gestión de usuarios</h1><p>Organiza tu equipo, administra sus permisos y controla el acceso al sistema.</p></div>
+@if(error()){<p role="alert">{{error()}}</p>}
+<section class="personal-card"><h2>Crear personal</h2><p class="ayuda">Completa los datos de la nueva cuenta y selecciona su función en el equipo.</p><form #f="ngForm" (ngSubmit)="crear()" class="personal-form">
+<label>Nombre<input name="nombre" [(ngModel)]="datos.nombre" required maxlength="100"></label>
+<label>Apellido<input name="apellido" [(ngModel)]="datos.apellido" required maxlength="100"></label>
+<label>Correo<input type="email" name="correo" [(ngModel)]="datos.correo" required email maxlength="150"></label>
+<label>Contraseña inicial<input type="password" name="contrasena" [(ngModel)]="datos.contrasena" required minlength="8" maxlength="64" autocomplete="new-password"></label>
+<label>Rol<select name="rol" [(ngModel)]="datos.rol"><option value="TECNICO">Técnico</option><option value="VENDEDOR">Vendedor</option><option value="ADMIN">Administrador</option></select></label>
+<button class="btn" [disabled]="f.invalid || ocupado()">Crear usuario</button></form></section>
+@if(cambio();as c){<section class="confirmacion" aria-label="Confirmar cambio de rol"><p>¿Cambiar el rol de {{c.usuario.nombre}} a {{c.rol}}? Sus permisos se actualizarán en la próxima solicitud.</p><button class="btn" (click)="confirmarRol()" [disabled]="ocupado()">Confirmar cambio</button><button class="btn" (click)="cambio.set(null)" [disabled]="ocupado()">Volver</button></section>}
+<h2 class="list-title">Usuarios registrados <span>{{usuarios().length}}</span></h2><div class="usuarios-lista">@for(usuario of usuarios();track usuario.id){<div class="usuario-fila"><div><strong>{{usuario.nombre}} {{usuario.apellido}}</strong><p>{{usuario.correo}}</p></div>
+<div class="usuario-acciones"><label>Rol<select [value]="usuario.rol" (change)="elegirRol(usuario,$any($event.target).value)" [disabled]="ocupado() || usuario.id===auth.usuarioActual()?.id">@for(rol of roles;track rol){<option [value]="rol">{{rol}}</option>}</select></label><span class="estado" [class.activo]="usuario.activo" [class.inactivo]="!usuario.activo">{{usuario.activo?'Activo':'Suspendido'}}</span>
+@if(usuario.rol!=='ADMIN'){<button class="btn" (click)="alternarActivo(usuario)" [disabled]="ocupado()">{{usuario.activo?'Suspender':'Activar'}}</button>}</div></div>}</div>
