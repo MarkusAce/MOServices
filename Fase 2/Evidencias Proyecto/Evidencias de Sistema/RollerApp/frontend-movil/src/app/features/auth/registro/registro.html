@@ -1,0 +1,19 @@
+<ion-header><ion-toolbar color="primary"><ion-buttons slot="start"><ion-back-button defaultHref="/login"></ion-back-button></ion-buttons><ion-title>Crear cuenta</ion-title></ion-toolbar></ion-header>
+<ion-content class="ion-padding">
+  <p>El registro público crea únicamente cuentas de cliente.</p>
+  <img class="auth-brand-mark" src="rollerapp-r.svg" alt="RollerApp" width="56" height="56"><form [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+    <ion-item><ion-label position="stacked">Nombre</ion-label><ion-input type="text" autocomplete="given-name" formControlName="nombre"></ion-input></ion-item>
+    @if (form.controls.nombre.touched && form.controls.nombre.invalid) { <p role="alert" style="color:var(--ion-color-danger)">Ingresa tu nombre (máximo 100 caracteres).</p> }
+    <ion-item><ion-label position="stacked">Apellido</ion-label><ion-input type="text" autocomplete="family-name" formControlName="apellido"></ion-input></ion-item>
+    @if (form.controls.apellido.touched && form.controls.apellido.invalid) { <p role="alert" style="color:var(--ion-color-danger)">Ingresa tu apellido (máximo 100 caracteres).</p> }
+    <ion-item><ion-label position="stacked">Correo electrónico</ion-label><ion-input type="email" autocomplete="email" formControlName="correo"></ion-input></ion-item>
+    @if (form.controls.correo.touched && form.controls.correo.invalid) { <p role="alert" style="color:var(--ion-color-danger)">Ingresa un correo electrónico válido.</p> }
+    <ion-item><ion-label position="stacked">Contraseña</ion-label><ion-input type="password" autocomplete="new-password" formControlName="contrasena"></ion-input></ion-item>
+    @if (form.controls.contrasena.touched && form.controls.contrasena.invalid) { <p role="alert" style="color:var(--ion-color-danger)">La contraseña debe tener al menos 6 caracteres.</p> }
+    <ion-item><ion-label position="stacked">Confirmar contraseña</ion-label><ion-input type="password" autocomplete="new-password" formControlName="confirmarContrasena"></ion-input></ion-item>
+    @if (form.controls.confirmarContrasena.touched && form.controls.confirmarContrasena.invalid) { <p role="alert" style="color:var(--ion-color-danger)">Confirma tu contraseña.</p> }
+    @if (error) { <p role="alert" style="color:var(--ion-color-danger)">{{ error }}</p> }
+    @if (exito) { <p role="status" style="color:var(--ion-color-success)">{{ exito }}</p><ion-button expand="block" type="button" (click)="irAlLogin()">Ir a iniciar sesión</ion-button> }
+    @if (!exito) { <ion-button expand="block" type="submit" class="ion-margin-top" [disabled]="enviando">@if (enviando) { <ion-spinner name="crescent"></ion-spinner> } {{ enviando ? 'Creando cuenta...' : 'Crear cuenta' }}</ion-button> }
+  </form>
+</ion-content>

@@ -1,0 +1,25 @@
+<ion-header><ion-toolbar><ion-buttons slot="start"><ion-back-button defaultHref="/tabs/herramientas" text="Volver" /></ion-buttons><ion-title>Reseñas</ion-title></ion-toolbar></ion-header>
+<ion-content class="ion-padding">
+<header class="resenas-intro"><span class="seccion-kicker">EXPERIENCIAS REALES</span><h1>Lo que cuentan nuestros clientes.</h1><p>Conoce sus experiencias con nuestros productos y servicios.</p></header>
+<div class="resenas-layout">
+  <section class="resenas-testimonios" aria-label="Opiniones de clientes"><div class="resenas-heading"><h2>Opiniones</h2><span>{{ resenas().length }} reseñas</span></div>
+    @if (cargando()) { <p class="resenas-estado">Cargando reseñas...</p> }
+    @else if(errorCarga()){<p role="alert">No se pudieron cargar las reseñas.</p><button (click)="cargar()">Reintentar</button>}
+    @else { <div class="resenas-lista">
+      @for (r of resenas(); track r.id) {
+        <article class="resena-card"><div class="resena-header"><div class="resena-identidad"><span class="resena-avatar" aria-hidden="true">{{ r.nombre.charAt(0) }}</span><strong>{{ r.nombre }}</strong></div><time>{{ r.fecha | date:'dd/MM/yyyy' }}</time></div>
+          <div class="estrellas" [attr.aria-label]="'Calificación promedio: '+((r.calidad + r.servicio)/2)+' de 5 estrellas'">@for (estrella of [1,2,3,4,5]; track estrella) { <span [class.llena]="estrella <= (r.calidad + r.servicio)/2" aria-hidden="true">★</span> }</div><p class="resena-texto">{{ r.descripcion }}</p><p class="resena-calificaciones"><span>Calidad <strong>{{ r.calidad }}/5</strong></span><span>Servicio <strong>{{ r.servicio }}/5</strong></span></p>
+        </article>
+      }
+    </div> }
+  </section>
+  @if (auth.estaLogeado()) {
+    <aside class="resenas-aside"><form [formGroup]="form" (ngSubmit)="enviar()" class="form-resena"><span class="seccion-kicker">TU EXPERIENCIA</span><h2>Cuéntanos cómo te fue</h2><p>Tu opinión ayuda a otras personas a elegir.</p>
+      <label for="resena-descripcion">Tu reseña</label><textarea id="resena-descripcion" formControlName="descripcion" placeholder="Cuéntanos tu experiencia..." rows="5"></textarea>
+      <div class="fila-calificaciones"><fieldset><legend>Calidad del producto</legend><div class="selector-estrellas">@for (estrella of [1,2,3,4,5]; track estrella) { <label [class.seleccionada]="estrella <= form.controls.calidad.value"><input type="radio" formControlName="calidad" [value]="estrella" [attr.aria-label]="estrella + ' estrellas en calidad'">★</label> }</div></fieldset><fieldset><legend>Atención y servicio</legend><div class="selector-estrellas">@for (estrella of [1,2,3,4,5]; track estrella) { <label [class.seleccionada]="estrella <= form.controls.servicio.value"><input type="radio" formControlName="servicio" [value]="estrella" [attr.aria-label]="estrella + ' estrellas en servicio'">★</label> }</div></fieldset></div>
+      <button type="submit" class="btn" [disabled]="enviando()">Publicar reseña <span aria-hidden="true">→</span></button>
+    </form></aside>
+  }
+</div>
+
+</ion-content>

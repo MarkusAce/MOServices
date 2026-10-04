@@ -1,0 +1,44 @@
+<ion-header>
+  <ion-toolbar color="primary"><ion-title>Mis Pedidos</ion-title></ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <h2>Cotizaciones</h2>
+  @if (errorRenovacion()) { <p role="alert">{{ errorRenovacion() }}</p> }
+  <ion-list>
+    @for (cotizacion of cotizaciones(); track cotizacion.id) {
+      <ion-item>
+        <ion-label>
+          <h3>Cotización #{{ cotizacion.id }} — {{ cotizacion.productoNombre }}</h3>
+          <p>{{ cotizacion.total | currency:'CLP':'symbol-narrow':'1.0-0' }}</p>
+          @if (cotizacion.estado === 'EXPIRADA') {
+            <p>Expiró el {{ cotizacion.expiraEn | date:'dd/MM/yyyy HH:mm' }}. Recálcula antes de continuar.</p>
+            <button type="button" [disabled]="renovandoId() !== null" (click)="renovar(cotizacion)">Recalcular con tarifas vigentes</button>
+          } @else {
+            <p>Válida hasta {{ cotizacion.expiraEn | date:'dd/MM/yyyy HH:mm' }}</p>
+            <button type="button" (click)="irAgenda(cotizacion.id)">{{ cotizacion.requiereVisita ? 'Elegir horario y pagar' : 'Continuar al pago' }}</button>
+          }
+        </ion-label>
+      </ion-item>
+    }
+  </ion-list>
+  @if (cargando()) {
+    <ion-spinner name="crescent"></ion-spinner>
+  } @else if (errorPedidos()) { <p role="alert">{{errorPedidos()}}</p><button type="button" (click)="ionViewWillEnter()">Reintentar</button>
+  } @else if (pedidos().length === 0) {
+    <p>Todavía no tienes pedidos.</p>
+  } @else {
+    <ion-list>
+      @for (pedido of pedidos(); track pedido.id) {
+        <ion-item>
+          <ion-label>
+            <h2>Pedido #{{ pedido.id }} — {{ pedido.productoNombre }}</h2>
+            <p>{{ pedido.direccion }}, {{ pedido.comuna }}</p>
+            <p>{{ pedido.creadoEn | date:'dd/MM/yyyy HH:mm' }} · {{ pedido.total | currency:'CLP':'symbol-narrow':'1.0-0' }}</p>
+          </ion-label>
+          <ion-badge slot="end">{{ etiquetaEstado(pedido.estado) }}</ion-badge>
+        </ion-item>
+      }
+    </ion-list>
+  }
+</ion-content>

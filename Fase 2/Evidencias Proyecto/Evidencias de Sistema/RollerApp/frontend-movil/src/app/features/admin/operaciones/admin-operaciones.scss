@@ -1,0 +1,9 @@
+:host { --ion-background-color:#f7f6f2; --ion-color-primary:#263b35; }
+.operaciones-nav { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; padding:4px 0 14px; }
+.operaciones-nav ion-button { margin:0; min-width:0; min-height:46px; --border-radius:12px; --background:#263b35; --color:#fff; --background-activated:#1b2d28; --padding-start:8px; --padding-end:8px; font-size:.82rem; text-transform:none; }
+.operaciones-nav ion-button[fill="clear"] { --background:#fff; --color:#263b35; border:1px solid #e7e5df; border-radius:12px; }
+.operaciones-nav ion-button::part(native) { white-space:normal; }
+ion-content h2 { color:#263b35; font-size:1.15rem; }
+ion-content article { background:#fff; border:1px solid #e7e5df !important; border-radius:14px; padding:14px !important; margin:10px 0; overflow-wrap:anywhere; }
+ion-content article ion-button { min-height:42px; max-width:100%; white-space:normal; }
+@media(min-width:700px) { .operaciones-nav { grid-template-columns:repeat(3,minmax(0,1fr)); } }
