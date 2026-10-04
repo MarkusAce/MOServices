@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">RollerApp</string>
-    <string name="title_activity_main">RollerApp</string>
-    <string name="package_name">cl.rollerapp.movil</string>
-    <string name="custom_url_scheme">cl.rollerapp.movil</string>
-</resources>

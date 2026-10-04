@@ -1,7 +1,0 @@
-<ion-header><ion-toolbar><ion-title>Más</ion-title></ion-toolbar></ion-header>
-<ion-content class="ion-padding"><main><h1>¿Qué necesitas hacer?</h1>
-@if(auth.esAdmin() || auth.esVendedor()){<h2>Gestión comercial</h2><nav class="accesos">@for(a of comercial;track a.ruta){<a [routerLink]="a.ruta"><strong>{{a.titulo}}</strong><span>{{a.detalle}}</span></a>}</nav>}
-@if(auth.esAdmin()){<h2>Administración</h2><nav class="accesos">@for(a of administracion;track a.titulo){<a [routerLink]="a.ruta" [queryParams]="a.parametros"><strong>{{a.titulo}}</strong><span>{{a.detalle}}</span></a>}</nav>}
-@if(auth.esAdmin() || auth.esVendedor() || auth.esTecnico()){<h2>Mis compras</h2><nav class="accesos"><a routerLink="/tabs/carrito"><strong>Mi carrito</strong><span>Revisa y paga tus cortinas</span></a><a routerLink="/tabs/mis-pedidos"><strong>Mis pedidos</strong><span>Cotizaciones y compras propias</span></a></nav>}
-<h2>Servicios y ayuda</h2><nav class="accesos">@for(a of publicos;track a.ruta){<a [routerLink]="a.ruta"><strong>{{a.titulo}}</strong><span>{{a.detalle}}</span></a>}<a routerLink="/tabs/catalogo"><strong>Catálogo</strong><span>Configura tu cortina</span></a></nav>
-</main></ion-content>
