@@ -1,0 +1,5 @@
+{
+	"appId": "cl.rollerapp.movil",
+	"appName": "RollerApp",
+	"webDir": "dist/frontend-movil/browser"
+}
