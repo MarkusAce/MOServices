@@ -1,0 +1,40 @@
+<header class="admin-bienvenida"><div><span class="admin-kicker">ESPACIO DE GESTIÓN</span><h1>Panel de administración</h1><p class="bienvenida">Hola, {{ auth.usuarioActual()?.nombre }}. Aquí puedes gestionar tu tienda.</p></div><span class="admin-marca">ROLLERAPP / ADMIN</span></header>
+<section class="admin-resumen" aria-label="Resumen de gestión">
+@if(error()){<p class="admin-resumen-estado" role="alert">No se pudieron actualizar los indicadores.</p>}
+@if(kpis();as datos){<article class="duration-card"><h2>Tiempo promedio de atención</h2><strong>{{datos.tiempoPromedioAtencionMinutos === null ? 'Sin visitas medidas' : datos.tiempoPromedioAtencionMinutos + ' min'}}</strong><p>{{datos.visitasConDuracion}} visitas medidas</p></article><div class="admin-indicadores">
+<article><span>Ventas del mes</span><strong>{{datos.ventasMes | currency:'CLP':'symbol-narrow':'1.0-0'}}</strong><small>{{datos.comprasMes}} compras registradas</small></article>
+<article><span>Conversión de cotizaciones</span><strong>{{datos.conversionPorcentaje}}%</strong><small>{{datos.cotizacionesConcretadasMes}} de {{datos.cotizacionesMes}} cotizaciones del mes</small></article>
+<article><span>Visitas reservadas</span><strong>{{datos.visitasAgendadas}}</strong><small>{{datos.visitasCompletadas}} completadas · {{datos.visitasCanceladas}} canceladas</small></article>
+</div><details class="detalle-indicadores"><summary>Consultar detalle e historial mensual</summary><div class="detalle-operacion"><p><strong>{{datos.enConfeccion}}</strong> en producción</p><p><strong>{{datos.enTerreno}}</strong> en camino</p><p><strong>{{datos.cotizacionesPendientesMes}}</strong> cotizaciones del mes pendientes</p><p><strong>{{datos.usuariosMes}}</strong> nuevos usuarios del mes</p></div><div class="historial-tabla"><table><thead><tr><th>Mes</th><th>Ventas</th><th>Compras</th><th>Cotizaciones concretadas</th></tr></thead><tbody>@for(mes of datos.meses;track mes.mes){<tr><td>{{etiquetaMes(mes.mes)}}</td><td>{{mes.ventas | currency:'CLP':'symbol-narrow':'1.0-0'}}</td><td>{{mes.compras}}</td><td>{{mes.concretadas}} / {{mes.cotizaciones}}</td></tr>}</tbody></table></div><p class="definicion">Ventas excluyen pedidos cancelados. Conversión: cotizaciones pagadas del mismo mes de creación. Visitas: totales históricos, sin horarios libres retirados.</p></details><p class="actualizado">Actualizado {{datos.actualizadoEn | date:'dd/MM/yyyy HH:mm'}}</p>
+}@else if(!error()){<p class="admin-resumen-estado">Cargando resumen…</p>}</section>
+<div class="admin-seccion-titulo"><h2>Áreas de trabajo</h2><p>Ordenamos las herramientas por tema para que sea más fácil encontrar lo que necesitas.</p></div>
+<div class="admin-grupos" aria-label="Módulos administrativos">
+  <details class="admin-grupo" open>
+    <summary><span><strong>Catálogo y precios</strong><small>Productos, telas, mecanismos y servicios</small></span><span aria-hidden="true">⌄</span></summary>
+    <nav class="accesos-grid compacto">
+      <a routerLink="/admin/productos" class="acceso-card"><span class="acceso-numero">PRODUCTOS</span><span class="modulo-icono" aria-hidden="true">▦</span><strong>Productos</strong><small>Modelos, fotos y disponibilidad</small><span class="acceso-flecha" aria-hidden="true">→</span></a>
+      <a routerLink="/admin/telas" class="acceso-card"><span class="acceso-numero">TELAS</span><span class="modulo-icono" aria-hidden="true">◈</span><strong>Telas y precios</strong><small>Materiales, paso de luz y valor por m²</small><span class="acceso-flecha" aria-hidden="true">→</span></a>
+      <a routerLink="/admin/mecanismos" class="acceso-card"><span class="acceso-numero">MECANISMOS</span><span class="modulo-icono" aria-hidden="true">⚙</span><strong>Mecanismos</strong><small>Tipos, valores y disponibilidad</small><span class="acceso-flecha" aria-hidden="true">→</span></a>
+      <a routerLink="/admin/servicios" class="acceso-card"><span class="acceso-numero">SERVICIOS</span><span class="modulo-icono" aria-hidden="true">⚒</span><strong>Servicios</strong><small>Instalación, mantención y comisiones</small><span class="acceso-flecha" aria-hidden="true">→</span></a>
+    </nav>
+  </details>
+  <details class="admin-grupo">
+    <summary><span><strong>Operación y atención</strong><small>Pedidos, agenda, clientes y postventa</small></span><span aria-hidden="true">⌄</span></summary>
+    <nav class="accesos-grid compacto">
+      <a routerLink="/admin/pedidos" class="acceso-card"><span class="acceso-numero">PEDIDOS</span><span class="modulo-icono" aria-hidden="true">▤</span><strong>Pedidos</strong><small>Seguimiento desde la compra hasta la entrega</small><span class="acceso-flecha" aria-hidden="true">→</span></a>
+      <a routerLink="/admin/agenda" class="acceso-card"><span class="acceso-numero">AGENDA</span><span class="modulo-icono" aria-hidden="true">▦</span><strong>Agenda</strong><small>Horarios y visitas técnicas</small><span class="acceso-flecha" aria-hidden="true">→</span></a>
+      <a routerLink="/clientes" class="acceso-card"><span class="acceso-numero">CLIENTES</span><span class="modulo-icono" aria-hidden="true">♙</span><strong>Clientes</strong><small>Datos de contacto e historial</small><span class="acceso-flecha" aria-hidden="true">→</span></a>
+      <a routerLink="/admin/postventa" class="acceso-card"><span class="acceso-numero">POSTVENTA</span><span class="modulo-icono" aria-hidden="true">✉</span><strong>Postventa</strong><small>Solicitudes y seguimiento de casos</small><span class="acceso-flecha" aria-hidden="true">→</span></a>
+    </nav>
+  </details>
+  <details class="admin-grupo">
+    <summary><span><strong>Administración</strong><small>Usuarios, pagos, comisiones y configuración</small></span><span aria-hidden="true">⌄</span></summary>
+    <nav class="accesos-grid compacto">
+      <a routerLink="/admin/usuarios" class="acceso-card"><span class="acceso-numero">USUARIOS</span><strong>Usuarios</strong><small>Accesos, roles y estado de cuentas</small><span class="acceso-flecha" aria-hidden="true">→</span></a>
+      <a routerLink="/admin/comisiones" class="acceso-card"><span class="acceso-numero">COMISIONES</span><strong>Comisiones</strong><small>Montos pendientes y pagados</small><span class="acceso-flecha" aria-hidden="true">→</span></a>
+      <a routerLink="/admin/incidencias-pago" class="acceso-card"><span class="acceso-numero">PAGOS</span><strong>Incidencias Webpay</strong><small>Pagos que requieren revisión</small><span class="acceso-flecha" aria-hidden="true">→</span></a>
+      <a routerLink="/admin/comunicaciones" class="acceso-card"><span class="acceso-numero">COMUNICACIONES</span><strong>Correos y comprobantes</strong><small>Configuración de avisos y respaldos</small><span class="acceso-flecha" aria-hidden="true">→</span></a>
+      <a routerLink="/facturacion/configurar" class="acceso-card"><span class="acceso-numero">FACTURACIÓN</span><strong>Facturación</strong><small>Campos solicitados al cliente</small><span class="acceso-flecha" aria-hidden="true">→</span></a>
+    </nav>
+  </details>
+</div>

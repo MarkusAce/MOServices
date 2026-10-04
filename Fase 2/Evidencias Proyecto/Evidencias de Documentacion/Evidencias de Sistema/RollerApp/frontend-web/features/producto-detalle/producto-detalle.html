@@ -1,0 +1,122 @@
+@if (producto(); as p) {
+  <div class="detalle-layout">
+    <div class="detalle-galeria">
+      @if (galeriaProducto().length) {
+        <div class="galeria-principal">
+          @for (vista of galeriaProducto(); track vista.etiqueta; let i = $index) {
+            @if (i === imagenActiva()) {
+              <div class="galeria-lienzo" [class]="vista.clase">
+                <img [src]="vista.src" [alt]="p.nombre + ' · ' + vista.etiqueta" (error)="imagenFallback($event)">
+              </div>
+            }
+          }
+          <button type="button" class="galeria-flecha anterior" aria-label="Ver imagen anterior" (click)="imagenAnterior()">‹</button>
+          <button type="button" class="galeria-flecha siguiente" aria-label="Ver imagen siguiente" (click)="imagenSiguiente()">›</button>
+          <span class="galeria-contador">{{ imagenActiva() + 1 }} / {{ galeriaProducto().length }}</span>
+        </div>
+        <div class="galeria-miniaturas" aria-label="Vistas de la cortina">
+          @for (vista of galeriaProducto(); track vista.etiqueta; let i = $index) {
+            <button type="button" [class.activa]="i === imagenActiva()" (click)="seleccionarImagen(i)" [attr.aria-label]="vista.etiqueta">
+              <span class="miniatura-lienzo" [class]="vista.clase"><img [src]="vista.src" alt="" (error)="imagenFallback($event)"></span>
+              <span>{{ vista.etiqueta }}</span>
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="detalle-info">
+      <span class="detalle-categoria">{{ p.categoria }}</span>
+      <h1>{{ p.nombre }}</h1>
+      <p class="detalle-descripcion">{{ p.descripcion }}</p>
+      <p class="detalle-max">Medida máxima de catálogo: {{ p.anchoMaxCm }} × {{ p.altoMaxCm }} cm</p>
+
+      <form [formGroup]="form" class="cotizador">
+        <h2>Cotizar esta cortina</h2>
+
+        <div class="form-item">
+          <label for="telaId">Tela</label>
+          <select id="telaId" formControlName="telaId">
+            @for (tela of telas(); track tela.id) {
+              <option [value]="tela.id">{{ tela.nombre }} ({{ tela.precioM2 | currency:'CLP':'symbol-narrow':'1.0-0' }} / m²)</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-item">
+          <label for="mecanismoId">Mecanismo</label>
+          <select id="mecanismoId" formControlName="mecanismoId">
+            @for (mecanismo of mecanismos(); track mecanismo.id) {
+              <option [value]="mecanismo.id">{{ mecanismo.nombre }} ({{ mecanismo.valorFijo | currency:'CLP':'symbol-narrow':'1.0-0' }})</option>
+            }
+          </select>
+        </div>
+
+        <div class="fila-medidas">
+          <div class="form-item">
+            <label for="anchoCm">Ancho (cm)</label>
+            <input id="anchoCm" type="number" min="1" step="any" formControlName="anchoCm" [max]="p.anchoMaxCm">
+          </div>
+          <div class="form-item">
+            <label for="altoCm">Alto (cm)</label>
+            <input id="altoCm" type="number" min="1" step="any" formControlName="altoCm" [max]="p.altoMaxCm">
+          </div>
+        </div>
+
+        <div class="form-item">
+          <span class="form-label">Servicios adicionales</span>
+          @for (servicio of servicios(); track servicio.id) {
+            <label class="checkbox-servicio">
+              <input type="checkbox" [checked]="form.controls.servicioIds.value.includes(servicio.id)" (change)="alternarServicio(servicio.id, $any($event.target).checked)">
+              {{ servicio.nombre }} (+{{ servicio.precio | currency:'CLP':'symbol-narrow':'1.0-0' }})
+            </label>
+          }
+        </div>
+
+        <div class="form-item">
+          <label for="direccion">Dirección de instalación</label>
+          @if (!direccionManual()) { <button type="button" (click)="usarDireccionManual()">Ingresar dirección manualmente</button> }
+@if (direccionManual()) { <p>La empresa verificará tu dirección antes de enviar al técnico.</p><label>Referencias de ubicación <textarea maxlength="500" [value]="referenciasDireccion" (input)="referenciasDireccion=$any($event.target).value"></textarea></label> }
+<input id="direccion" type="text" formControlName="direccion" placeholder="Calle y número" (input)="buscarDireccion($any($event.target).value)">
+          @if (direccionesHabilitadas() && !direccionManual()) {
+            @if (buscandoDireccion()) { <small>Buscando direcciones…</small> }
+            @for (opcion of sugerenciasDireccion(); track opcion.placeId) {
+              <button type="button" class="btn" (click)="seleccionarDireccion(opcion)">{{ opcion.texto }}</button>
+            }
+            @if (!lugarSeleccionado()) { <small>Selecciona una dirección sugerida para verificar cobertura.</small> }
+          }
+        </div>
+
+        <div class="form-item">
+          <label for="comuna">Comuna</label>
+          <input id="comuna" type="text" formControlName="comuna">
+          @if (errorCobertura()) { <p role="alert" class="error-cobertura">{{ errorCobertura() }}</p> }
+        </div>
+
+        @if (previsualizacion(); as prev) {
+          <div class="previsualizacion">
+            <p>Metros cuadrados: {{ prev.metrosCuadrados | number:'1.2-2' }} m²</p>
+          @if (prev.aplicaCobroMinimo) {
+            <p role="status" class="aviso-cobro-minimo">Superficie facturada: {{ prev.metrosCuadradosFacturados | number:'1.2-2' }} m². Se cobra un mínimo de 1,00 m² de tela por cortina.</p>
+          }
+            <p>Tela: {{ prev.valorTela | currency:'CLP':'symbol-narrow':'1.0-0' }}</p>
+            <p>Mecanismo: {{ prev.valorMecanismo | currency:'CLP':'symbol-narrow':'1.0-0' }}</p>
+            <p>Servicios: {{ prev.valorServicios | currency:'CLP':'symbol-narrow':'1.0-0' }}</p>
+            <p class="previsualizacion-total">Total estimado: {{ prev.total | currency:'CLP':'symbol-narrow':'1.0-0' }}</p>
+          </div>
+        }
+
+        <div class="acciones-compra"><button type="button" class="btn agregar-carrito" [disabled]="enviando() || !previsualizacion()" (click)="cotizar(true)">{{ enviando() ? 'Generando cotización…' : (editandoCarritoId ? 'Guardar cambios en el carrito' : 'Añadir al carrito') }}</button>
+        @if (!editandoCarritoId) {
+        <button type="button" class="btn" [disabled]="enviando() || !previsualizacion()" (click)="cotizar()">
+          {{ enviando() ? 'Generando cotización...' : 'Cotizar y continuar' }}
+        </button>
+        }</div>
+      </form>
+    </div>
+  </div>
+} @else if (errorCarga()) {
+  <p role="alert">{{ errorCarga() }}</p>
+} @else if (cargandoProducto()) {
+  <p role="status">Cargando producto...</p>
+}

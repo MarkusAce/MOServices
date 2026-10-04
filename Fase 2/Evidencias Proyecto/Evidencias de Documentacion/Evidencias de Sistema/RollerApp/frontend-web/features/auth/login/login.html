@@ -1,0 +1,29 @@
+<div class="form-contenedor">
+  <img class="auth-brand-mark" src="rollerapp-r.svg" alt="RollerApp" width="56" height="56"><h1>Iniciar Sesión</h1>
+
+  <form [formGroup]="form" (ngSubmit)="enviar()">
+    <div class="form-item">
+      <label for="correo">Correo Electrónico</label>
+      <input id="correo" type="email" formControlName="correo" placeholder="tu@correo.cl">
+      @if (form.controls.correo.invalid && form.controls.correo.touched) {
+        <span class="form-error">Ingresa un correo válido.</span>
+      }
+    </div>
+
+    <div class="form-item">
+      <label for="contrasena">Contraseña</label>
+      <input id="contrasena" type="password" formControlName="contrasena">
+      @if (form.controls.contrasena.invalid && form.controls.contrasena.touched) {
+        <span class="form-error">Ingresa tu contraseña.</span>
+      }
+    </div>
+
+    <a routerLink="/olvide-contrasena" class="link-btn">¿Olvidaste tu contraseña?</a>
+
+    <button type="submit" class="btn" [disabled]="enviando">
+      {{ enviando ? 'Ingresando...' : 'Ingresar' }}
+    </button>
+  </form>
+
+  <p class="form-nota">¿No tienes cuenta? <a routerLink="/registro">Regístrate aquí</a></p>
+</div>

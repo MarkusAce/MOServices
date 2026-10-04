@@ -1,0 +1,33 @@
+<header class="pedidos-intro"><span class="pedidos-kicker">TU HISTORIAL DE COMPRA</span><h1>Mis pedidos</h1><p>Consulta tus compras, sigue su estado y retoma cotizaciones pendientes.</p></header>
+<section class="cotizaciones-pendientes" aria-label="Cotizaciones pendientes">
+  <div class="seccion-titulo"><div><span class="pedidos-kicker">POR COMPLETAR</span><h2>Cotizaciones pendientes</h2></div><span class="contador">{{ cotizaciones().length }}</span></div>
+  @if (errorCotizaciones()) { <p role="alert" class="aviso aviso-error">No pudimos cargar tus cotizaciones. Intenta nuevamente más tarde.</p> }
+  @else if (cotizaciones().length === 0) { <p class="vacio">No tienes cotizaciones pendientes de pago.</p> }
+  @if (errorRenovacion()) { <p role="alert" class="aviso aviso-error">{{ errorRenovacion() }}</p> }
+  @for (cotizacion of cotizaciones(); track cotizacion.id) {
+    <article class="pedido-card cotizacion-card">
+      <div class="pedido-card-header"><span class="pedido-numero">Cotización #{{ cotizacion.id }}</span><span class="pedido-estado" [class.cancelado]="cotizacion.estado === 'EXPIRADA'">{{ cotizacion.estado === 'EXPIRADA' ? 'Vencida' : 'Pendiente de pago' }}</span></div>
+      <h3>{{ cotizacion.productoNombre }}</h3><p class="pedido-fecha">Creada el {{ cotizacion.creadoEn | date:'dd/MM/yyyy' }}</p>
+      <div class="pedido-card-footer"><strong class="pedido-total">{{ cotizacion.total | currency:'CLP':'symbol-narrow':'1.0-0' }}</strong>
+        @if (cotizacion.estado === 'EXPIRADA') { <button type="button" class="accion" [disabled]="renovandoId() !== null" (click)="renovar(cotizacion)">Recalcular cotización →</button> }
+        @else { <a class="accion" [routerLink]="['/agenda']" [queryParams]="{cotizacionId: cotizacion.id}">{{ cotizacion.requiereVisita ? 'Elegir horario y pagar →' : 'Continuar al pago →' }}</a> }
+      </div>
+      @if (cotizacion.estado === 'EXPIRADA') { <p class="aviso aviso-alerta">Venció el {{ cotizacion.expiraEn | date:'dd/MM/yyyy HH:mm' }}. Al continuar se calculará un precio actualizado.</p> }
+      @else { <p class="vigencia">Válida hasta {{ cotizacion.expiraEn | date:'dd/MM/yyyy HH:mm' }}</p> }
+    </article>
+  }
+</section>
+<section aria-label="Historial de pedidos"><div class="seccion-titulo"><div><span class="pedidos-kicker">SEGUIMIENTO</span><h2>Historial de pedidos</h2></div><span class="contador">{{ pedidos().length }}</span></div>
+@if (cargando()) { <p class="vacio" role="status">Cargando tus pedidos...</p> }
+@else if(errorPedidos()){<p role="alert">{{errorPedidos()}}</p><button type="button" (click)="cargar()">Reintentar</button>}
+@else if (pedidos().length === 0) { <div class="vacio"><strong>Aún no tienes pedidos</strong><p>Cuando completes una compra, podrás seguirla aquí.</p><a routerLink="/catalogo" class="accion">Explorar catálogo →</a></div> }
+@else { <div class="pedidos-lista">@for (pedido of pedidos(); track pedido.id) {
+  <article class="pedido-card"><div class="pedido-card-header"><span class="pedido-numero">Pedido #{{ pedido.id }}</span><span class="pedido-estado" [class]="pedido.estado.toLowerCase()">{{ etiquetaEstado(pedido.estado) }}</span></div>
+  <h3>{{ pedido.productoNombre }}</h3><p class="pedido-detalle">{{ pedido.direccion }}, {{ pedido.comuna }}</p>
+  <div class="pedido-card-footer"><div><span class="metadato">Fecha de compra</span><p class="pedido-fecha">{{ pedido.creadoEn | date:'dd/MM/yyyy HH:mm' }}</p></div><div class="total-bloque"><span class="metadato">Total pagado</span><strong class="pedido-total">{{ pedido.total | currency:'CLP':'symbol-narrow':'1.0-0' }}</strong></div></div>
+  @if (pedido.estado === 'CANCELADO') { <p class="aviso aviso-error">Este pedido fue cancelado. Si necesitas ayuda, contacta a postventa.</p> }
+  @else if (pedido.estado === 'REPROGRAMADO') { <p class="aviso aviso-alerta">Tu pedido fue reprogramado. Revisa las novedades con nuestro equipo.</p> }
+  @else if (pedido.estado === 'REALIZADO') { <p class="aviso aviso-exito">Pedido finalizado. ¡Gracias por comprar en RollerApp!</p> }
+</article>
+}</div> }
+</section>

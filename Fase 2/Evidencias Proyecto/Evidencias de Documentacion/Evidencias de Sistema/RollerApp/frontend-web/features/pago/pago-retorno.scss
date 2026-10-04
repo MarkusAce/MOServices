@@ -1,0 +1,28 @@
+.pago-resultado {
+  max-width: 480px;
+  margin: 40px auto;
+  text-align: center;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 32px;
+}
+
+h1.exito { color: var(--color-success); }
+h1.rechazado { color: var(--color-danger); }
+
+.btn {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 12px 24px;
+  background-color: var(--color-primary);
+  color: var(--color-surface);
+  border-radius: var(--radius-pill);
+  text-decoration: none;
+  font-weight: 700;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+
+  &:hover:not(:disabled) { background-color: var(--color-primary-dark); }
+}
+
+:host{display:block;padding:20px 0 60px}.pago-resultado{max-width:560px;border:1px solid var(--color-border);padding:clamp(24px,5vw,48px);background:#fff}.pago-resultado h1{font-size:clamp(1.7rem,4vw,2.2rem);letter-spacing:-.04em;line-height:1.2}.pago-resultado p{color:var(--color-text-muted);line-height:1.7;overflow-wrap:anywhere}.pago-resultado ul{list-style:none;padding:0;display:flex;justify-content:center;gap:10px;flex-wrap:wrap}.pago-resultado li{padding:8px 12px;background:#eef0e6;border-radius:8px;font-size:.85rem}.pago-resultado .btn{border-radius:10px;min-height:44px}@media(max-width:600px){.pago-resultado{margin:20px 0}}

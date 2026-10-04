@@ -1,0 +1,37 @@
+<div class="form-contenedor">
+  <h1>Recuperar Contraseña</h1>
+
+  @switch (paso()) {
+    @case ('correo') {
+      <form [formGroup]="formCorreo" (ngSubmit)="enviarCorreo()">
+        <p class="form-nota-superior">Ingresa tu correo y te enviaremos un código de verificación.</p>
+        <div class="form-item">
+          <label>Correo Electrónico</label>
+          <input type="email" formControlName="correo" placeholder="tu@correo.cl">
+        </div>
+        <button type="submit" class="btn" [disabled]="enviando()">Enviar Código</button>
+      </form>
+    }
+    @case ('codigo') {
+      <form [formGroup]="formCodigo" (ngSubmit)="verificarCodigo()">
+        <p class="form-nota-superior">
+          Enviamos un código a {{ correoEnviado }}.
+        </p>
+        <div class="form-item">
+          <label>Código de Verificación</label>
+          <input type="text" formControlName="codigo" placeholder="123456">
+        </div>
+        <button type="submit" class="btn" [disabled]="enviando()">Verificar</button>
+      </form>
+    }
+    @case ('nueva-contrasena') {
+      <form [formGroup]="formNuevaContrasena" (ngSubmit)="restablecer()">
+        <div class="form-item">
+          <label>Nueva Contraseña</label>
+          <input type="password" formControlName="nuevaContrasena">
+        </div>
+        <button type="submit" class="btn" [disabled]="enviando()">Guardar Contraseña</button>
+      </form>
+    }
+  }
+</div>
